@@ -17,7 +17,7 @@ from troposphere import (
 ApplicationName = "helloworld"
 ApplicationPort = "3000"
 
-GithubAccount = "EffectiveDevOpsWithAWS"
+GithubAccount = "lindynetech"
 GithubAnsibleURL = "https://github.com/{}/ansible".format(GithubAccount)
 
 AnsiblePullCmd = \
@@ -90,4 +90,4 @@ t.add_output(Output(
     ]),
 ))
 
-print t.to_json()
+print t.to_yml()
