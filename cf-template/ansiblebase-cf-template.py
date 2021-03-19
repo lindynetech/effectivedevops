@@ -11,15 +11,15 @@ from troposphere import (
 )
 
 ApplicationName = "helloworld"
-ApplicationPort = "3000"
+ApplicationPort = "80"
 PublicCidrIp = "0.0.0.0/0"
-amiId = "ami-a4c7edb2"
+amiId = " ami-038f1ca1bd58a5790"
 
 GithubAccount = "lindynetech"
-GithubAnsibleURL = "https://github.com/{}/effectivedevops/ansible/".format(GithubAccount)
+GithubAnsibleURL = "https://github.com/{}/effectivedevops/".format(GithubAccount)
 
 AnsiblePullCmd = \
-    "/usr/local/bin/ansible-pull -U {} {}.yml -i localhost".format(
+    "/usr/bin/ansible-pull -U {} ansible/{}.yml -i localhost".format(
         GithubAnsibleURL,
         ApplicationName
     )
@@ -57,10 +57,10 @@ t.add_resource(ec2.SecurityGroup(
 
 ud = Base64(Join('\n', [
     "#!/bin/bash",
-    "yum install --enablerepo=epel -y git",
+    "yum install -y git python2-pip",
     "pip install --upgrade pip",
     "pip install ansible",
-    AnsiblePullCmd,
+    #AnsiblePullCmd,
     "echo '*/10 * * * * {}' > /etc/cron.d/ansible-pull".format(AnsiblePullCmd)
 ]))
 
