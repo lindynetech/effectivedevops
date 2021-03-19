@@ -4,9 +4,11 @@ node {
         checkout scm
 
    stage 'Setup'
-        sh 'cd helloworld'
-        sh 'pwd'
-        sh 'ls -la'
+        dir("helloworld") {
+          sh 'pwd'
+          sh 'ls -la'
+        }     
+
 
    stage 'Mocha test'
         sh 'cd helloworld'
