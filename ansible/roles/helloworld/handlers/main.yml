@@ -5,3 +5,4 @@
   service:
     name: helloworld
     state: restarted
+    daemon_reload: yes

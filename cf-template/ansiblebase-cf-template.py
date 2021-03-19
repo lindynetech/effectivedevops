@@ -11,9 +11,9 @@ from troposphere import (
 )
 
 ApplicationName = "helloworld"
-ApplicationPort = "80"
+ApplicationPort = "3000"
 PublicCidrIp = "0.0.0.0/0"
-amiId = " ami-038f1ca1bd58a5790"
+amiId = "ami-038f1ca1bd58a5790"
 
 GithubAccount = "lindynetech"
 GithubAnsibleURL = "https://github.com/{}/effectivedevops/".format(GithubAccount)
@@ -60,7 +60,8 @@ ud = Base64(Join('\n', [
     "yum install -y git python2-pip",
     "pip install --upgrade pip",
     "pip install ansible",
-    #AnsiblePullCmd,
+    "amazon-linux-extras install epel",
+    AnsiblePullCmd,
     "echo '*/10 * * * * {}' > /etc/cron.d/ansible-pull".format(AnsiblePullCmd)
 ]))
 
