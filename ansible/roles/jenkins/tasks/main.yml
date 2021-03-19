@@ -24,7 +24,7 @@
     enablerepo: jenkins
     state: present
   vars:
-    packagtes:
+    packages:
       - jenkins
       - java-1.8.0-openjdk-devel
 
