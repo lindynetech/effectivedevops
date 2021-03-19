@@ -14,6 +14,7 @@ Outputs:
 Parameters:
   KeyPair:
     ConstraintDescription: must be the name of an existing EC2 KeyPair.
+    Default: sysops-key
     Description: Name of an existing EC2 KeyPair to SSH
     Type: AWS::EC2::KeyPair::KeyName
 Resources:
@@ -41,9 +42,8 @@ Resources:
         Fn::Join:
           - "\n"
           - - '#!/bin/bash'
-            - sudo yum install --enablerepo=epel -y nodejs
+            - yum install --enablerepo=epel -y nodejs
             - wget http://bit.ly/2vESNuc -O /home/ec2-user/helloworld.js
-            - wget http://bit.ly/2vVvT18 -O /etc/init/helloworld.conf
-            - sudo start helloworld
+            - node /home/ec2-user/helloworld.js
     Type: AWS::EC2::Instance
 

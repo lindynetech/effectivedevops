@@ -1,7 +1,4 @@
 """Generating CloudFormation template."""
-from ipaddress import ip_network
-
-from ipify import get_ip
 
 from troposphere import (
     Base64,
@@ -14,19 +11,7 @@ from troposphere import (
     Template,
 )
 
-ApplicationName = "helloworld"
 ApplicationPort = "3000"
-
-GithubAccount = "lindynetech"
-GithubAnsibleURL = "https://github.com/{}/ansible".format(GithubAccount)
-
-AnsiblePullCmd = \
-    "/usr/local/bin/ansible-pull -U {} {}.yml -i localhost".format(
-        GithubAnsibleURL,
-        ApplicationName
-    )
-
-PublicCidrIp = str(ip_network(get_ip()))
 
 t = Template()
 
@@ -36,6 +21,7 @@ t.add_parameter(Parameter(
     "KeyPair",
     Description="Name of an existing EC2 KeyPair to SSH",
     Type="AWS::EC2::KeyPair::KeyName",
+    Default = "sysops-key",
     ConstraintDescription="must be the name of an existing EC2 KeyPair.",
 ))
 
@@ -47,7 +33,7 @@ t.add_resource(ec2.SecurityGroup(
             IpProtocol="tcp",
             FromPort="22",
             ToPort="22",
-            CidrIp=PublicCidrIp,
+            CidrIp="0.0.0.0/0",
         ),
         ec2.SecurityGroupRule(
             IpProtocol="tcp",
@@ -60,10 +46,9 @@ t.add_resource(ec2.SecurityGroup(
 
 ud = Base64(Join('\n', [
     "#!/bin/bash",
-    "yum install --enablerepo=epel -y git",
-    "pip install ansible",
-    AnsiblePullCmd,
-    "echo '*/10 * * * * {}' > /etc/cron.d/ansible-pull".format(AnsiblePullCmd)
+    "yum install --enablerepo=epel -y nodejs",
+    "wget http://bit.ly/2vESNuc -O /home/ec2-user/helloworld.js",
+    "node /home/ec2-user/helloworld.js"
 ]))
 
 t.add_resource(ec2.Instance(
@@ -90,4 +75,4 @@ t.add_output(Output(
     ]),
 ))
 
-print t.to_yml()
+print(t.to_yaml())
