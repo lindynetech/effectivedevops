@@ -5,7 +5,8 @@ node {
 
    stage 'Setup'
         sh 'cd helloworld'
-        sh 'npm install'
+        sh 'pwd'
+        sh 'ls -la'
 
    stage 'Mocha test'
         sh 'cd helloworld'
