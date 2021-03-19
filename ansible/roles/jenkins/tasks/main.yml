@@ -1,0 +1,35 @@
+---
+# tasks file for roles/jenkins
+- name: Import Jenkins GPG key
+  rpm_key:
+    state: present
+    key: https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+
+- name: Add Jenkins repository
+  yum_repository:
+    name: jenkins
+    description: jenkins repository
+    baseurl: https://pkg.jenkins.io/redhat-stable/jenkins.repo
+    enabled: no
+    gpgcheck: yes
+
+- name: Updgrade all packages
+  yum:
+    name: '*'
+    state: latest
+
+- name: Install Jenkins
+  yum:
+    name: "{{ packages }}"
+    enablerepo: jenkins
+    state: present
+  vars:
+    packagtes:
+      - jenkins
+      - java-1.8.0-openjdk-devel
+
+- name: Start Jenkins
+  service:
+    name: jenkins
+    enabled: yes
+    state: started

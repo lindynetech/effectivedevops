@@ -10,19 +10,34 @@ from troposphere import (
     Template,
 )
 
-ApplicationName = "helloworld"
-ApplicationPort = "3000"
+from troposphere.iam import (
+  InstanceProfile,
+  PolicyType as IAMPolicy,
+  Role,
+)
+from awacs.aws import (
+  Action,
+  Allow,
+  Policy,
+  Principal,
+  Statement,
+)
+
+from awacs.sts import AssumeRole
+
+ApplicationName = "jenkins"
+ApplicationPort = "8080"
+PublicCidrIp = "0.0.0.0/0"
+amiId = "ami-038f1ca1bd58a5790"
 
 GithubAccount = "lindynetech"
-GithubAnsibleURL = "https://github.com/{}/ansible".format(GithubAccount)
+GithubAnsibleURL = "https://github.com/{}/effectivedevops/".format(GithubAccount)
 
 AnsiblePullCmd = \
-    "/usr/local/bin/ansible-pull -U {} {}.yml -i localhost".format(
+    "/usr/bin/ansible-pull -U {} ansible/{}.yml -i localhost".format(
         GithubAnsibleURL,
         ApplicationName
     )
-
-PublicCidrIp = "0.0.0.0/0"
 
 t = Template()
 
@@ -32,7 +47,7 @@ t.add_parameter(Parameter(
     "KeyPair",
     Description="Name of an existing EC2 KeyPair to SSH",
     Type="AWS::EC2::KeyPair::KeyName",
-    Default="sysops-key",
+    Default = "sysops-key",
     ConstraintDescription="must be the name of an existing EC2 KeyPair.",
 ))
 
@@ -57,19 +72,41 @@ t.add_resource(ec2.SecurityGroup(
 
 ud = Base64(Join('\n', [
     "#!/bin/bash",
-    "yum install --enablerepo=epel -y git",
+    "yum install -y git python2-pip",
+    "pip install --upgrade pip",
     "pip install ansible",
+    "amazon-linux-extras install epel",
     AnsiblePullCmd,
     "echo '*/10 * * * * {}' > /etc/cron.d/ansible-pull".format(AnsiblePullCmd)
 ]))
 
+t.add_resource(Role(
+    "Role",
+    AssumeRolePolicyDocument=Policy(
+        Statement=[
+            Statement(
+                Effect=Allow,
+                Action=[AssumeRole],
+                Principal=Principal("Service", ["ec2.amazonaws.com"])
+            )
+        ]
+    )
+))
+
+t.add_resource(InstanceProfile(
+    "InstanceProfile",
+    Path="/",
+    Roles=[Ref("Role")]
+))
+
 t.add_resource(ec2.Instance(
     "instance",
-    ImageId="ami-a4c7edb2",
+    ImageId=amiId,
     InstanceType="t2.micro",
     SecurityGroups=[Ref("SecurityGroup")],
     KeyName=Ref("KeyPair"),
     UserData=ud,
+    IamInstanceProfile=Ref("InstanceProfile"),
 ))
 
 t.add_output(Output(
@@ -87,4 +124,4 @@ t.add_output(Output(
     ]),
 ))
 
-print t.to_yml()
+print(t.to_yaml())
