@@ -11,5 +11,5 @@
   # notify: restart helloworld
 
 - name: Starting the HelloWorld node service
-  command: node helloworld.js
+  command: node /home/ec2-user/helloworld.js
 
