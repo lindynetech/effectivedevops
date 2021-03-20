@@ -24,6 +24,19 @@ Resources:
       Roles:
         - !Ref 'Role'
     Type: AWS::IAM::InstanceProfile
+  Policy:
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - codepipeline:*
+            Effect: Allow
+            Resource:
+              - '*'
+      PolicyName: AllowCodePipeline
+      Roles:
+        - !Ref 'Role'
+    Type: AWS::IAM::Policy
   Role:
     Properties:
       AssumeRolePolicyDocument:
